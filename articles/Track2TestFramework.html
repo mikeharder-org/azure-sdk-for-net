@@ -1,0 +1,253 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Accquring TestFramework </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Accquring TestFramework ">
+    <meta name="generator" content="docfx 2.43.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="accquring-testframework">Accquring TestFramework</h1>
+
+<p>To start using test framework import <code>sdk\core\Azure.Core\tests\TestFramework.props</code> into test <code>.csproj</code>:</p>
+<pre><code class="lang-xml">&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;
+
+...
+  &lt;Import Project=&quot;..\..\..\core\Azure.Core\tests\TestFramework.props&quot; /&gt;
+...
+
+&lt;/Project&gt;
+
+</code></pre>
+<h1 id="sync-async-tests">Sync-async tests</h1>
+<p>The test framework provides an ability to write test using async client methods and automatically run them using sync overloads. To write sync-async client tests inherit from <code>ClientTestBase</code> class and use <code>InstrumentClient</code> method call to wrap client into a proxy class that would automatically forward async calls to their sync overloads.</p>
+<pre><code class="lang-C#">public class ConfigurationLiveTests: ClientTestBase
+{
+    public ConfigurationLiveTests(bool isAsync) : base(isAsync)
+    {
+    }
+
+    private ConfigurationClient GetClient()
+    {
+        return InstrumentClient(new ConfigurationClient(...));
+    }
+
+    public async Task DeleteSettingNotFound()
+    {
+        ConfigurationClient service = GetClient();
+
+        var response = await service.DeleteAsync(&quot;Setting&quot;);
+
+        Assert.AreEqual(204, response.Status);
+        response.Dispose();
+    }
+}
+</code></pre>
+<p>In the test explorer async tests would display as <code>TestClassName(true)</code> and sync tests as <code>TestClassName(false)</code>.</p>
+<p>When using sync-async tests with recorded tests two sessions files would get generated async test session would have <code>Async.json</code> suffix.</p>
+<p>You can disable the sync-forwarding for an individual test by applying the <code>[AsyncOnly]</code> attribute to the test method.</p>
+<p><strong>Limitation</strong>: all method calls/properties that are being used have to be <code>virtual</code>.</p>
+<h1 id="recorded-tests">Recorded tests</h1>
+<p>Test framework provides an ability to record HTTP requests and responses and replay them for offline test runs.</p>
+<p>To use recorded test functionality inherit from <code>RecordedTestBase</code> class and use <code>Recording.InstrumentClientOptions</code> method when creating the client instance.</p>
+<pre><code class="lang-C#">public class ConfigurationLiveTests: RecordedTestBase
+{
+    public ConfigurationLiveTests(bool isAsync) : base(isAsync)
+    {
+    }
+
+    private ConfigurationClient GetClient()
+    {
+        return InstrumentClient(
+            new ConfigurationClient(
+                ...,
+                Recording.InstrumentClientOptions(new ConfigurationClientOptions())));
+    }
+
+    public async Task DeleteSettingNotFound()
+    {
+        ConfigurationClient service = GetClient();
+
+        var response = await service.DeleteAsync(&quot;Setting&quot;);
+
+        Assert.AreEqual(204, response.Status);
+        response.Dispose();
+    }
+}
+</code></pre>
+<p>By default tests are run in playback mode. To change the mode use <code>AZURE_TEST_MODE</code> environment variable and set it to one of the followind values: <code>Live</code>, <code>Playback</code>, <code>Record</code>.</p>
+<p>In development scenarios where it's required to change mode quickly without restarting the Visual Studio use the two-parameter constructor of <code>RecordedTestBase</code> to change the mode:</p>
+<pre><code class="lang-C#">public class ConfigurationLiveTests: RecordedTestBase
+{
+    public ConfigurationLiveTests(bool isAsync) : base(isAsync, RecordedTestMode.Record)
+    {
+    }
+}
+</code></pre>
+<h2 id="recording">Recording</h2>
+<p>When tests are run in recording mode session records are being saved to <code>artifacts/bin/&lt;ProjectName&gt;/&lt;TargetFramework&gt;/SessionRecords</code> directory. You can copy recordings to the project directory manually or by executing <code>dotnet msbuild /t:UpdateSessionRecords</code> in the test project directory.</p>
+<p><strong>NOTE:</strong> recordings are copied from <code>netcoreapp2.1</code> directory by default, make sure you are running the right target framework.</p>
+<h2 id="sanitizing">Sanitizing</h2>
+<p>Secrets that are part of requests, responses, headers or connections strings should be sanitized before saving the record. Common headers like <code>Authentication</code> are sanitized automatically but if custom logic is required <code>RecordedTest.Sanitizer</code> should be used as extension point.</p>
+<p>For example:</p>
+<pre><code class="lang-C#">    public class ConfigurationRecordedTestSanitizer : RecordedTestSanitizer
+    {
+        public override void SanitizeConnectionString(ConnectionString connectionString)
+        {
+            const string secretKey = &quot;secret&quot;;
+
+            if (connectionString.Pairs.ContainsKey(secretKey))
+            {
+                connectionString.Pairs[secretKey] = &quot;&quot;;
+            }
+        }
+    }
+
+    public class ConfigurationLiveTests: RecordedTestBase
+    {
+        public ConfigurationLiveTests(bool isAsync) : base(isAsync)
+        {
+            Sanitizer = new ConfigurationRecordedTestSanitizer();
+        }
+    }
+</code></pre>
+<h2 id="matching">Matching</h2>
+<p>When tests are ran in replay mode HTTP method, uri and headers are used to match request to response. Some headers change on every request and are not controlled by the client code and should be ignored during the matching. Common headers like <code>Date</code>, <code>x-ms-date</code>, <code>x-ms-client-request-id</code>, <code>User-Agent</code>, <code>Request-Id</code> are ignored by default but if more headers need to be ignored use <code>Recording.Matcher</code> extensions point.</p>
+<pre><code class="lang-C#">    public class ConfigurationRecordMatcher : RecordMatcher
+    {
+        public ConfigurationRecordMatcher(RecordedTestSanitizer sanitizer) : base(sanitizer)
+        {
+            ExcludeHeaders.Add(&quot;Sync-Token&quot;);
+        }
+    }
+
+    public class ConfigurationLiveTests: RecordedTestBase
+    {
+        public ConfigurationLiveTests(bool isAsync) : base(isAsync)
+        {
+            Sanitizer = new ConfigurationRecordedTestSanitizer();
+            Matcher = new ConfigurationRecordMatcher(Sanitizer);
+        }
+    }
+</code></pre>
+<h2 id="tokencredential">TokenCredential</h2>
+<p>If test uses <code>TokenCredential</code> to construct the client use <code>Recording.GetCredential(...)</code> to wrap it:</p>
+<pre><code class="lang-C#">    public abstract class KeysTestBase : RecordedTestBase
+    {
+        internal KeyClient GetClient()
+        {
+            return InstrumentClient
+                (new KeyClient(
+                    new Uri(recording.GetVariableFromEnvironment(AzureKeyVaultUrlEnvironmentVariable)),
+/* --------&gt; */     recording.GetCredential(new DefaultAzureCredential()),
+                    recording.InstrumentClientOptions(new KeyClientOptions())));
+        }
+    }
+
+</code></pre>
+<h2 id="misc">Misc</h2>
+<p>You can use <code>Recording.GenerateId()</code> to generate repeatable random IDs.</p>
+<p>You should only use <code>Recording.Random</code> for random values (and you MUST make the same number of random calls in the same order every test run)</p>
+<p>You can use <code>Recording.Now</code> and <code>Recording.UtcNow</code> if you need certain values to capture the time the test was recorded</p>
+<p>It's possible to add additional recording variables for advanced scenarios (like custom test configuration, etc.) but using <code>Recording.GetVariableFromEnvironment</code>, <code>Recording.GetVariable</code> or <code>Recording.GetConnectionStringFromEnvironment</code>.</p>
+<p>You can use <code>if (Mode == RecordingMode.Playback) { ... }</code> to change behavior for playback only scenarios (in particular to make polling times instantaneous)</p>
+<p>You can use <code>using (Recording.DisableRecording()) { ... }</code> to disable recording in the code block (useful for polling methods)</p>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/Azure/azure-sdk-for-net/blob/master/docfx_project/articles/Track2TestFramework.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

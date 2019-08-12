@@ -1,0 +1,282 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Azure Identity client library for .NET </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Azure Identity client library for .NET ">
+    <meta name="generator" content="docfx 2.43.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="azure-identity-client-library-for-net">Azure Identity client library for .NET</h1>
+
+<p>The Azure Identity library provides Azure Active Directory token authentication support across the Azure SDK. It provides a set of TokenCredential implementations which can be used to construct Azure SDK clients which support AAD token authentication.</p>
+<p>This library is in preview and currently supports:</p>
+<ul>
+<li><a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals">Service principal authentication</a></li>
+<li><a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview">Managed identity authentication</a></li>
+</ul>
+<p><a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity">Source code</a> | <a href="https://www.nuget.org/packages/Azure.Identity">Package (nuget)</a> | API reference documentation (Coming Soon) | <a href="https://docs.microsoft.com/en-us/azure/active-directory/">Azure Active Directory documentation</a></p>
+<h2 id="getting-started">Getting started</h2>
+<h3 id="install-the-package">Install the package</h3>
+<p>Install the Azure Identity client library for .NET with <a href="https://www.nuget.org/">NuGet</a>:</p>
+<pre><code class="lang-PowerShell">Install-Package Azure.Identity -IncludePrerelease
+</code></pre>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>An <a href="https://azure.microsoft.com/free/">Azure subscription</a>.</li>
+<li>An existing Azure Active Directory service principal. If you need to create a service principal, you can use the Azure Portal or <a href="https://docs.microsoft.com/cli/azure">Azure CLI</a>.</li>
+</ul>
+<h4 id="creating-a-service-principal-with-the-azure-cli">Creating a Service Principal with the Azure CLI</h4>
+<p>Use the <a href="https://docs.microsoft.com/cli/azure">Azure CLI</a> snippet below to create/get client secret credentials.</p>
+<ul>
+<li>Create a service principal and configure its access to Azure resources:
+<pre><code class="lang-bash">az ad sp create-for-rbac -n &lt;your-application-name&gt; --skip-assignment
+</code></pre>
+Output:
+<pre><code class="lang-json">{
+    &quot;appId&quot;: &quot;generated-app-ID&quot;,
+    &quot;displayName&quot;: &quot;dummy-app-name&quot;,
+    &quot;name&quot;: &quot;http://dummy-app-name&quot;,
+    &quot;password&quot;: &quot;random-password&quot;,
+    &quot;tenant&quot;: &quot;tenant-ID&quot;
+}
+</code></pre>
+</li>
+<li>Use the returned credentials above to set  <strong>AZURE_CLIENT_ID</strong>(appId), <strong>AZURE_CLIENT_SECRET</strong>(password) and <strong>AZURE_TENANT_ID</strong>(tenant) <a href="#environment-variables">environment variables</a>.</li>
+</ul>
+<h2 id="key-concepts">Key concepts</h2>
+<h3 id="credentials">Credentials</h3>
+<p>A credential is a class which contains or can obtain the data needed for a service client to authenticate requests. Service clients across Azure SDK accept credentials when they are constructed and use those credentials to authenticate requests to the service. Azure Identity offers a variety of credential classes in the <code>Azure.Identity</code> namespace capable of acquiring an AAD token. All of these credential classes are implementations of the <code>TokenCredential</code> abstract class in <a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/core/Azure.Core">Azure.Core</a>, and can be used by any service client which can be constructed with a <code>TokenCredential</code>.</p>
+<p>The credential types in Azure Identity differ in the types of AAD identities they can authenticate and how they are configured:</p>
+<table>
+<thead>
+<tr>
+<th>credential class</th>
+<th>identity</th>
+<th>configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DefaultAzureCredential</code></td>
+<td>service principal or managed identity</td>
+<td>none for managed identity; <a href="#environment-variables">environment variables</a> for service principal</td>
+</tr>
+<tr>
+<td><code>ManagedIdentityCredential</code></td>
+<td>managed identity</td>
+<td>constructor parameters</td>
+</tr>
+<tr>
+<td><code>EnvironmentCredential</code></td>
+<td>service principal</td>
+<td><a href="#environment-variables">environment variables</a></td>
+</tr>
+<tr>
+<td><code>ClientSecretCredential</code></td>
+<td>service principal</td>
+<td>constructor parameters</td>
+</tr>
+<tr>
+<td><code>CertificateCredential</code></td>
+<td>service principal</td>
+<td>constructor parameters</td>
+</tr>
+</tbody>
+</table>
+<p>Credentials can be chained together to be tried in turn until one succeeds using the <code>ChainedTokenCredential</code>; see <a href="#chaining-credentials">chaining credentials</a> for details.</p>
+<p><strong>Note</strong>: All credential implementations in the Azure Identity library are threadsafe, and a single credential instance can be used to create multiple service clients.</p>
+<h2 id="defaultazurecredential">DefaultAzureCredential</h2>
+<p><code>DefaultAzureCredential</code> is appropriate for most scenarios where the application is intended to run in the Azure Cloud. This is because the <code>DefaultAzureCredential</code> determines the appropriate credential type based of the environment it is executing in. It supports authenticating both as a service principal or managed identity, and can be configured so that it will work both in a local development environment or when deployed to the cloud.</p>
+<p>The <code>DefaultAzureCredential</code> will first attempt to authenticate using credentials provided in the environment. In a development environment you can authenticate as a service principal with the <code>DefaultAzureCredential</code> by providing configuration in environment variables as described in the next section.</p>
+<p>If the environment configuration is not present or incomplete, the <code>DefaultAzureCredential</code> will then determine if a managed identity is available in the current environment.  Authenticating as a managed identity requires no configuration, but does
+require platform support. See the
+<a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/services-support-managed-identities">managed identity documentation</a> for more details on this.</p>
+<h2 id="environment-variables">Environment variables</h2>
+<p><code>DefaultAzureCredential</code> and <code>EnvironmentCredential</code> are configured for service
+principal authentication with these environment variables:</p>
+<table>
+<thead>
+<tr>
+<th>variable name</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AZURE_CLIENT_ID</code></td>
+<td>service principal's app id</td>
+</tr>
+<tr>
+<td><code>AZURE_TENANT_ID</code></td>
+<td>id of the principal's Azure Active Directory tenant</td>
+</tr>
+<tr>
+<td><code>AZURE_CLIENT_SECRET</code></td>
+<td>one of the service principal's client secrets</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples</h2>
+<h2 id="authenticating-with-defaultazurecredential">Authenticating with <code>DefaultAzureCredential</code></h2>
+<p>This example demonstrates authenticating the <code>SecretClient</code> from the <a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/keyvault/Azure.Security.KeyVault.Secrets">Azure.Security.KeyVault.Secrets</a> client library using the <code>DefaultAzureCredential</code>.</p>
+<pre><code class="lang-c#">using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+
+// Create a secret client using the DefaultAzureCredential
+var client = new SecretClient(new Uri(&quot;https://myvault.azure.vaults.net/&quot;), new DefaultAzureCredential());
+</code></pre>
+<p>When executing this in a development machine you need to first <a href="#environment-variables">configure the environment</a> setting the variables <code>AZURE_CLIENT_ID</code>, <code>AZURE_TENANT_ID</code> and <code>AZURE_CLIENT_SECRET</code> to the appropriate values for your service principal.</p>
+<h2 id="authenticating-a-service-principal-with-a-client-secret">Authenticating a service principal with a client secret</h2>
+<p>This example demonstrates authenticating the <code>BlobClient</code> from the <a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Blobs">Azure.Storage.Blobs</a> client library using the <code>ClientSecretCredential</code>.</p>
+<pre><code class="lang-c#">using Azure.Identity;
+using Azure.Storage.Blobs;
+
+// authenticating a service principal with a client secret
+var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+
+var blobClient = new BlobClient(new Uri(&quot;https://myaccount.blob.core.windows.net/mycontainer/myblob&quot;), credential);
+</code></pre>
+<h2 id="authenticating-a-service-principal-with-a-certificate">Authenticating a service principal with a certificate</h2>
+<p>This example demonstrates authenticating the <code>KeyClient</code> from the <a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/keyvault/Azure.Security.KeyVault.Keys">Azure.Security.KeyVault.Keys</a> client library using the <code>CertificateCredential</code>.</p>
+<pre><code class="lang-c#">using Azure.Identity;
+using Azure.Security.KeyVault.Keys;
+
+// authenticating a service principal with a certificate
+var certificate = new X509Certificate2(&quot;./app/certs/certificate.pfx&quot;);
+
+var credential = new CertificateCredential(tenantId, clientId, certificate);
+
+var keyClient = new KeyClient(new Uri(&quot;https://myvault.azure.vaults.net/&quot;), credential);
+</code></pre>
+<h2 id="chaining-credentials">Chaining Credentials</h2>
+<p>The <code>ChainedTokenCredential</code> class provides the ability to link together multiple credential instances to be tried sequentially when authenticating. The following example demonstrates creating a credential which will attempt to authenticate using managed identity, and fall back to certificate authentication if a managed identity is unavailable in the current environment.  This example authenticates an <code>EventHubClient</code> from the <a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/eventhub/Azure.Messaging.EventHubs">Azure.Messaging.EventHubs</a> client library using the <code>ChainedTokenCredential</code>.</p>
+<pre><code class="lang-c#">using Azure.Identity;
+using Azure.Messaging.EventHubs;
+
+var managedCredential = new ManagedIdentityCredential(clientId);
+
+var certCredential = new CertificateCredential(tenantId, clientId, certificate);
+
+// authenticate using managed identity if it is available otherwise use certificate auth
+var credential = new ChainedTokenCredential(managedCredential, certCredential);
+
+var eventHubClient = new EventHubClient(&quot;myeventhub.eventhubs.windows.net&quot;, &quot;myhubpath&quot;, credential);
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>Errors arising from authentication can be raised on any service client method which makes a request to the service. This is because the first time the token is requested from the credential is on the first call to the service, and any subsequent calls might need to refresh the token. In order to distinguish these failures from failures in the service client Azure Identity classes raise the <code>AuthenticationFailedException</code> with details to the source of the error in the exception message as well as possibly the error message.</p>
+<p>For more details on dealing with errors arising from failed requests to Azure Active Directory, or managed identity endpoints please refer to the Azure Active Directory <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/reference-aadsts-error-codes">documentation on authorization error codes</a>.</p>
+<h2 id="next-steps">Next steps</h2>
+<p>Currently the following client libraries support authenticating with <code>TokenCredential</code> and the Azure Identity library.  You can learn more about their use, and find additional documentation on use of these client libraries along samples with can be found in the links below.</p>
+<ul>
+<li><a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/eventhub/Azure.Messaging.EventHubs">Azure.Messaging.EventHubs</a></li>
+<li><a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/keyvault/Azure.Security.KeyVault.Keys">Azure.Security.KeyVault.Keys</a></li>
+<li><a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/keyvault/Azure.Security.KeyVault.Secrets">Azure.Security.KeyVault.Secrets</a></li>
+<li><a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Blobs">Azure.Storage.Blobs</a></li>
+<li><a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Queues">Azure.Storage.Queues</a></li>
+</ul>
+<h2 id="contributing">Contributing</h2>
+<p>This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <a href="https://cla.microsoft.com">https://cla.microsoft.com</a>.</p>
+<p>When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.</p>
+<p>This project has adopted the <a href="https://opensource.microsoft.com/codeofconduct/">Microsoft Open Source Code of Conduct</a>. For more information see the Code of Conduct FAQ or contact opencode@microsoft.com with any additional questions or comments.</p>
+<!-- LINKS -->
+<p><img src="https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-net%2Fsdk%2Fidentity%2FAzure.Identity%2FFREADME.png" alt="Impressions"></p>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/Azure/azure-sdk-for-net/blob/master/docfx_project/articles/-identity-Azure.Identity-README.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

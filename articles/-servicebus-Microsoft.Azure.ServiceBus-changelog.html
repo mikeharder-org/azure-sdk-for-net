@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>4.0.0 </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="4.0.0 ">
+    <meta name="generator" content="docfx 2.43.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="400">4.0.0</h1>
+
+<h2 id="breaking-changes">Breaking Changes</h2>
+<ul>
+<li>Allow clients to report if they own or share the underlying connection string <a href="https://github.com/Azure/azure-sdk-for-net/pull/6037">PR 6037</a></li>
+<li>RBAC support - Allow more flexible ways to provide authentication <a href="https://github.com/Azure/azure-sdk-for-net/pull/6393">PR 6393</a></li>
+<li>Updating RBAC API signatures <a href="https://github.com/Azure/azure-sdk-for-net/pull/6578">PR 6578</a></li>
+<li>RBAC and ManagedIdentity fixes <a href="https://github.com/Azure/azure-sdk-for-net/pull/6637">PR 6637</a></li>
+</ul>
+<h2 id="improvements">Improvements</h2>
+<ul>
+<li>Remove explicit offloading in TaskExtensionHelper <a href="https://github.com/Azure/azure-sdk-for-net/pull/6545">PR 6545</a></li>
+<li>Make ConcurrentExpiringSet not leak the cleanup task for the period of delayBetweenCleanups - lock free <a href="https://github.com/Azure/azure-sdk-for-net/pull/6577">PR 6577</a></li>
+<li>Unblock message pump while receiving message to improve performance <a href="https://github.com/Azure/azure-sdk-for-net/pull/6804">PR 6804</a></li>
+<li>Message sender now exposes <code>viaEntityPath</code> that points to the via-entity. <a href="https://github.com/Azure/azure-sdk-for-net/pull/6941">PR 6941</a></li>
+<li>Throwing <code>ServiceBusCommunicationException</code> when it is connectionError instead of <code>ServiceBusException</code> <a href="https://github.com/Azure/azure-sdk-for-net/pull/6942">PR 6942</a></li>
+<li>Updating xmldoc - remarks on MessageHandlerOptions.MaxAutoRenewDuration <a href="https://github.com/Azure/azure-sdk-for-net/pull/6951">PR 6951</a></li>
+</ul>
+<h2 id="bug-fixes">Bug fixes</h2>
+<ul>
+<li>Fixes session pump stop when auto-renew lock task expires <a href="https://github.com/Azure/azure-sdk-for-net/pull/6483">PR 6483</a></li>
+<li>Fix session pump stops on some exceptions  <a href="https://github.com/Azure/azure-sdk-for-net/pull/6485">PR 6485</a></li>
+<li>Prevent pump from stop processing by ignoring ObjectDisposedException <a href="https://github.com/Azure/azure-sdk-for-net/pull/6510">PR 6510</a></li>
+<li>Ensure that when AcceptMessageSession times out, it doesnt report it as Exception in AppInsights (DiagnosticSource) <a href="https://github.com/Azure/azure-sdk-for-net/pull/6919">PR 6919</a></li>
+<li>Ensure client side timeouts are honored <a href="https://github.com/Azure/azure-sdk-for-net/pull/6920">PR 6920</a></li>
+<li>Throw ServiceBusCommunicationException when session is being created at the same time when connection is being closed. <a href="https://github.com/Azure/azure-sdk-for-net/pull/6940">PR 6940</a></li>
+<li>Ensure if link has been authorized for a time less than TokenRefreshBuffer, it doesn't lead to unexpected errors. <a href="https://github.com/Azure/azure-sdk-for-net/pull/7053">PR 7053</a></li>
+</ul>
+<h2 id="for-older-releases-please-check-httpsgithubcomazureazure-service-bus-dotnetreleases">For older releases, please check <a href="https://github.com/Azure/azure-service-bus-dotnet/releases">https://github.com/Azure/azure-service-bus-dotnet/releases</a></h2>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/Azure/azure-sdk-for-net/blob/master/docfx_project/articles/-servicebus-Microsoft.Azure.ServiceBus-changelog.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

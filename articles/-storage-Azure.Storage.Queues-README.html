@@ -1,0 +1,246 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Azure Storage Queues client library for .NET </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Azure Storage Queues client library for .NET ">
+    <meta name="generator" content="docfx 2.43.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="azure-storage-queues-client-library-for-net">Azure Storage Queues client library for .NET</h1>
+
+<blockquote>
+<p>Server Version: 2018-11-09</p>
+</blockquote>
+<p>Azure Queue storage is a service for storing large numbers of messages that
+can be accessed from anywhere in the world via authenticated calls using
+HTTP or HTTPS.  A single queue message can be up to 64 KB in size, and a
+queue can contain millions of messages, up to the total capacity limit of
+a storage account.</p>
+<p><a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Queues/src">Source code</a> | <a href="https://www.nuget.org/packages/Azure.Storage.Queues/">Package (NuGet)</a> | <a href="https://azure.github.io/azure-sdk-for-net/api/Storage/Azure.Storage.Queues.html">API reference documentation</a> | <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/queue-service-rest-api">REST API documentation</a> | <a href="https://docs.microsoft.com/en-us/azure/storage/queues/storage-queues-introduction">Product documentation</a></p>
+<h2 id="getting-started">Getting started</h2>
+<h3 id="install-the-package">Install the package</h3>
+<p>Install the Azure Storage Queues client library for .NET with <a href="https://www.nuget.org/">NuGet</a>:</p>
+<pre><code class="lang-Powershell">dotnet add package Azure.Storage.Queues --version 12.0.0-preview.1
+</code></pre>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>You need an <a href="https://azure.microsoft.com/free/">Azure subscription</a> and a
+<a href="https://docs.microsoft.com/en-us/azure/storage/common/storage-account-overview">Storage Account</a> to use this package.</p>
+<p>To create a new Storage Account, you can use the <a href="https://docs.microsoft.com/en-us/azure/storage/common/storage-quickstart-create-account?tabs=azure-portal">Azure Portal</a>,
+<a href="https://docs.microsoft.com/en-us/azure/storage/common/storage-quickstart-create-account?tabs=azure-powershell">Azure PowerShell</a>, or the <a href="https://docs.microsoft.com/en-us/azure/storage/common/storage-quickstart-create-account?tabs=azure-cli">Azure CLI</a>.
+Here's an example using the Azure CLI:</p>
+<pre><code class="lang-Powershell">az storage account create --name MyStorageAccount --resource-group MyResourceGroup --location westus --sku Standard_LRS
+</code></pre>
+<h2 id="key-concepts">Key concepts</h2>
+<p>Common uses of Queue storage include:</p>
+<ul>
+<li>Creating a backlog of work to process asynchronously</li>
+<li>Passing messages between different parts of a distributed application</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<h3 id="enqueue-messages">Enqueue messages</h3>
+<pre><code class="lang-c#">using Azure.Storage;
+using Azure.Storage.Queues;
+using Azure.Storage.Queues.Models;
+
+// Get a connection string to our Azure Storage account.  You can
+// obtain your connection string from the Azure Portal (click
+// Access Keys under Settings in the Portal Storage account blade)
+// or using the Azure CLI with:
+//
+//     az storage account show-connection-string --name &lt;account_name&gt; --resource-group &lt;resource_group&gt;
+//
+// And you can provide the connection string to your application
+// using an environment variable.
+string connectionString = &quot;&lt;connection_string&gt;&quot;;
+
+// Get a reference to a queue named &quot;sample-queue&quot; and then create it
+QueueClient queue = new QueueClient(connectionString, &quot;sample-queue&quot;);
+queue.Create();
+
+// Add a message to our queue
+queue.EnqueueMessage(&quot;Hello, Azure!&quot;);
+</code></pre>
+<h3 id="dequeue-messages">Dequeue messages</h3>
+<pre><code class="lang-c#">// Get a connection string to our Azure Storage account.
+string connectionString = &quot;&lt;connection_string&gt;&quot;;
+
+// Get a reference to a queue named &quot;sample-queue&quot; and then create it
+QueueClient queue = new QueueClient(connectionString, &quot;sample-queue&quot;);
+queue.Create();
+
+// Add several messages to the queue
+queue.EnqueueMessage(&quot;first&quot;);
+queue.EnqueueMessage(&quot;second&quot;);
+queue.EnqueueMessage(&quot;third&quot;);
+
+// Get the next 10 messages from the queue
+foreach (DequeuedMessage message in queue.DequeueMessages(maxMessages: 10).Value)
+{
+    // &quot;Process&quot; the message
+    Console.WriteLine(message.MessageText)
+
+    // Let the service know we finished with the message and
+    // it can be safely deleted.
+    queue.DeleteMessage(message.MessageId, message.PopReceipt);
+}
+</code></pre>
+<h3 id="async-apis">Async APIs</h3>
+<p>We fully support both synchronous and asynchronous APIs.</p>
+<pre><code class="lang-c#">// Get a connection string to our Azure Storage account.
+string connectionString = &quot;&lt;connection_string&gt;&quot;;
+
+// Get a reference to a queue named &quot;sample-queue&quot; and then create it
+QueueClient queue = new QueueClient(connectionString, &quot;sample-queue&quot;);
+await queue.CreateAsync();
+
+// Add a message to our queue
+await queue.EnqueueMessageAsync(&quot;Hello, Azure!&quot;);
+</code></pre>
+<h3 id="authenticating-with-azureidentity">Authenticating with Azure.Identity</h3>
+<p>The <a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/identity/Azure.Identity/README.md">Azure Identity library</a> provides easy Azure Active Directory support for authentication.</p>
+<pre><code class="lang-c#">using Azure.Identity;
+
+// Create a QueueClient that will authenticate through Active Directory
+Uri accountUri = new Uri(&quot;https://MYSTORAGEACCOUNT.blob.core.windows.net/&quot;);
+QueueClient queue = new QueueClient(accountUri, new DefaultAzureCredential());
+</code></pre>
+<p>Learn more about enabling Azure Active Directory for authentication with Azure Storage in <a href="https://docs.microsoft.com/en-us/azure/storage/common/storage-auth-aad">our documentation</a> and <a href="#next-steps">our samples</a>.</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>All Azure Storage Queue service operations will throw a
+<a href="https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Common/src/StorageRequestFailedException.cs">StorageRequestFailedException</a> on failure with
+helpful <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/queue-service-error-codes"><code>ErrorCode</code>s</a>.  Many of these errors are recoverable.</p>
+<pre><code class="lang-c#">// Get a connection string to our Azure Storage account
+string connectionString = &quot;&lt;connection_string&gt;&quot;;
+
+// Try to create a queue named &quot;sample-queue&quot; and avoid any potential race
+// conditions that might arise by checking if the queue exists before creating
+QueueClient queue = new QueueClient(connectionString, &quot;sample-queue&quot;);
+try
+{
+    queue.Create();
+}
+catch (StorageRequestFailedException ex)
+    when (ex.ErrorCode == QueueErrorCode.QueueAlreadyExists)
+{
+    // Ignore any errors if the queue already exists
+}
+</code></pre>
+<h2 id="next-steps">Next steps</h2>
+<p>Get started with our <a href="samples/">Queue samples</a>:</p>
+<ol>
+<li><a href="samples/Sample01a_HelloWorld.cs">Hello World</a>: Enqueue, Dequeue, Peek, and Update queue messages (or <a href="samples/Sample01b_HelloWorldAsync.cs">asynchronously</a>)</li>
+<li><a href="samples/Sample02_Auth.cs">Auth</a>: Authenticate with connection strings, shared keys, shared access signatures, and Azure Active Directory.</li>
+</ol>
+<h2 id="contributing">Contributing</h2>
+<p>See the <a href="../CONTRIBUTING.md">Storage CONTRIBUTING.md</a> for details on building,
+testing, and contributing to this library.</p>
+<p>This project welcomes contributions and suggestions.  Most contributions require
+you to agree to a Contributor License Agreement (CLA) declaring that you have
+the right to, and actually do, grant us the rights to use your contribution. For
+details, visit <a href="https://cla.microsoft.com">cla.microsoft.com</a>.</p>
+<p>This project has adopted the <a href="https://opensource.microsoft.com/codeofconduct/">Microsoft Open Source Code of Conduct</a>.
+For more information see the <a href="https://opensource.microsoft.com/codeofconduct/faq/">Code of Conduct FAQ</a>
+or contact <a href="mailto:opencode@microsoft.com">opencode@microsoft.com</a> with any
+additional questions or comments.</p>
+<p><img src="https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-net%2Fsdk%2Fstorage%2FAzure.Storage.Queues%2FREADME.png" alt="Impressions"></p>
+<!-- LINKS -->
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/Azure/azure-sdk-for-net/blob/master/docfx_project/articles/-storage-Azure.Storage.Queues-README.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

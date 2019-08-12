@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Contributing </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Contributing ">
+    <meta name="generator" content="docfx 2.43.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="contributing">Contributing</h1>
+
+<p>This project welcomes contributions and suggestions.  Most contributions
+require you to agree to a Contributor License Agreement (CLA) declaring that
+you have the right to, and actually do, grant us the rights to use your
+contribution. For details, visit <a href="https://cla.microsoft.com">cla.microsoft.com</a>.</p>
+<p>This project has adopted the <a href="https://opensource.microsoft.com/codeofconduct/">Microsoft Open Source Code of Conduct</a>.  For
+more information see the <a href="https://opensource.microsoft.com/codeofconduct/faq/">Code of Conduct FAQ</a> or contact
+<a href="mailto:opencode@microsoft.com">opencode@microsoft.com</a> with any additional questions or
+comments.</p>
+<h2 id="azure-sdk-design-guidelines-for-net">Azure SDK Design Guidelines for .NET</h2>
+<p>These libraries follow the <a href="https://azuresdkspecs.z5.web.core.windows.net/DotNetSpec.html">Azure SDK Design Guidelines for .NET</a>
+and share a number of core features such as HTTP retries, logging, transport
+protocols, authentication protocols, etc., so that once you learn how to use
+these features in one client library, you will know how to use them in other
+client libraries.  You can learn about these shared features in the
+<a href="/sdk/core/Azure.Core/README.md">Azure.Core README</a>.</p>
+<h2 id="code-generation">Code Generation</h2>
+<p>Please do not edit any of the code in the <code>/Generated</code> folders directly.  If
+you need to update a swagger file or change the generator, you can regenerate
+by running the <code>\sdk\storage\generate.ps1</code> script:</p>
+<pre><code class="lang-powershell">PS C:\src\azure-sdk-for-net\sdk\storage&gt; .\generate.ps1
+
+&gt;&gt;&gt; VERBOSE: Emitting file BlobRestClient.cs
+&gt;&gt;&gt; VERBOSE: Emitting file FileRestClient.cs
+&gt;&gt;&gt; VERBOSE: Emitting file QueueRestClient.cs
+</code></pre>
+<p>The generator uses <a href="https://github.com/Azure/autorest">AutoRest</a> which requires
+node.js.  There's known flakiness that results in an <code>ERROR: Did not find any input files to generate!</code> message that can be safely ignored -- just run the
+generator one more time.</p>
+<h2 id="testing">Testing</h2>
+<p>Please ensure all tests pass with any changes and additional tests are added to
+exercise any new features that you've added.</p>
+<h3 id="frameworks">Frameworks</h3>
+<p>We use <a href="https://github.com/nunit/docs/wiki">nUnit 3</a> as our testing framework.</p>
+<p><a href="../core/Azure.Core/tests/TestFramework">Azure.Core's testing framework</a> is
+copied into our projects' <code>/TestFramework</code> folders by the build.  <em>(Please be
+sure to run all of the unit tests in <code>../../core/Azure.Core/Azure.Core.All.sln</code>
+if you make any changes here.)</em></p>
+<p>We also have <a href="./Azure.Storage.Common/tests/Shared">common test code</a> in our
+projects' <code>/Shared</code> folders that provides helpful Storage specific
+infrastructure.</p>
+<h3 id="configuration">Configuration</h3>
+<p>Our live tests require access to a variety of Storage accounts making use of
+different service features.  We specify all of them via a
+<code>TestConfigurations.xml</code> file.  It includes:</p>
+<ul>
+<li><code>TargetTestTenant</code> - the default Storage account for our tests</li>
+<li><code>TargetSecondaryTestTenant</code> - a Storage account with Read Access Geo-Redundant Storage enabled</li>
+<li><code>TargetPremiumBlobTenant</code> - A Storage account using Premium SSDs</li>
+<li><code>TargetPreviewBlobTenant</code> - A Storage account with access to preview features</li>
+<li><code>TargetOAuthTenant</code> - A Storage account configured to authenticate with Azure Active Directory</li>
+</ul>
+<p>If you want to run live tests against your own account, you can edit the
+<a href=".%5CAzure.Storage.Common%5Ctests%5CShared%5CTestConfigurationsTemplate.xml"><code>TestConfigurationsTemplate.xml</code></a>
+file and rename it to <code>TestConfigurations.xml</code> in the same folder.  The build
+will automatically copy it to each test project.  If you're working with
+multiple enlistments or want to change between multiple configuration files,
+you can set the <code>AZ_STORAGE_CONFIG_PATH</code> environment variable to a
+configuration file path that will take precedence over your local
+<code>TestConfigurations.xml</code> file.</p>
+<h3 id="syncasync-testing">Sync/Async testing</h3>
+<p>We expose all of our APIs with both sync and async variants.  To avoid writing
+each of our tests twice, we automatically rewrite our async API calls into
+their sync equivalents.  Simply write your tests using only async APIs and
+call <code>InstrumentClient</code> on any of our client objects.  The test framework will
+wrap the client with a proxy that forwards everything to the sync overloads.
+Please note that a number of our helpers will automatically instrument clients
+they provide you.  Visual Studio's test runner will show <code>*TestClass(True)</code> for
+the async variants and <code>*TestClass(False)</code> for the sync variants.</p>
+<h3 id="recorded-tests">Recorded tests</h3>
+<p>Our testing framework supports recording service requests made during a unit
+test so they can be replayed later.  You can set the <code>AZURE_TEST_MODE</code>
+environment variable to <code>Playback</code> to run previously recorded tests, <code>Record</code>
+to record or re-record tests, and <code>Live</code> to run tests against the live service.</p>
+<p>Properly supporting recorded tests does require a few extra considerations.
+All random values should be obtained via <code>this.Recording.Random</code> since we use
+the same seed on test playback to ensure our client code generates the same
+&quot;random&quot; values each time.  You can't share any state between tests or rely on
+ordering because you don't know the order they'll be recorded or replayed.  Any
+sensitive values are redacted via the <a href=".%5CAzure.Storage.Common%5Ctests%5CShared%5CStorageRecordedTestSanitizer.cs"><code>StorageRecordedTestSanitizer</code></a>.</p>
+<h3 id="running-tests">Running tests</h3>
+<p>The easiest way to run the tests is via Visual Studio's unit test runner.</p>
+<p>You can also run tests via the command line using <code>dotnet test</code>, but that will
+run tests for all supported platforms simultaneously and intermingle their
+output.  You can run the tests for just one platform with <code>dotnet test -f netcoreapp2.1</code>
+or <code>dotnet test -f net461</code>.</p>
+<p>The recorded tests are run automatically on every pull request.  Live tests are
+run nightly.  Contributors with write access can ask Azure DevOps to run the
+live tests against a pull request by commenting <code>/azp run net - storage - tests</code>
+in the PR.</p>
+<h3 id="samples">Samples</h3>
+<p>Our samples are structured as unit tests so we can easily verify they're up to
+date and working correctly.  These tests aren't recorded and make minimal use
+of test infrastructure to keep them easy to read.</p>
+<p><img src="https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-net%2Fsdk%2Fstorage%2FCONTRIBUTING.png" alt="Impressions"></p>
+<!-- LINKS -->
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/Azure/azure-sdk-for-net/blob/master/docfx_project/articles/-storage-CONTRIBUTING.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
